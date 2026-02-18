@@ -22,13 +22,18 @@ export default function Login() {
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  const handleLogin = async () => {
-   await supabase.auth.signInWithOAuth({
+    const origin =
+  typeof window !== "undefined"
+    ? window.location.origin
+    : process.env.NEXT_PUBLIC_SITE_URL;
+
+await supabase.auth.signInWithOAuth({
   provider: "google",
   options: {
-    redirectTo: "http://localhost:3000/auth/callback",
+    redirectTo: `${origin}/auth/callback`,
   },
-})
+});
+
   }
 
   return (
