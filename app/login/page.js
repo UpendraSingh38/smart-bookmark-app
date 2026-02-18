@@ -2,38 +2,38 @@
 
 import { createClient } from '@/lib/supabaseClient'
 import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 export default function Login() {
   const router = useRouter()
   const supabase = createClient()
 
   useEffect(() => {
-    // Check if a session exists on page load
+    // Check session on load
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) router.push('/dashboard')
     })
 
-    // Listen for auth state changes after redirect
+    // Listen for login after redirect
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) router.push('/dashboard')
     })
 
     return () => listener.subscription.unsubscribe()
-  }, [])
+  }, [router, supabase])
 
+  const handleLogin = async () => {
     const origin =
-  typeof window !== "undefined"
-    ? window.location.origin
-    : process.env.NEXT_PUBLIC_SITE_URL;
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_SITE_URL
 
-await supabase.auth.signInWithOAuth({
-  provider: "google",
-  options: {
-    redirectTo: `${origin}/auth/callback`,
-  },
-});
-
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${origin}/auth/callback`,
+      },
+    })
   }
 
   return (
