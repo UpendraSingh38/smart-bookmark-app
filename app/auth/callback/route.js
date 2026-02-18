@@ -28,7 +28,12 @@ export async function GET(request) {
 
   // Exchange auth code for session
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) {
+      console.error("OAuth exchange error:", error.message)
+      return NextResponse.redirect(`${requestUrl.origin}/login`)
+    }
+    // At this point, supabase sets the session cookie correctly
   }
 
   // Redirect to dashboard after login
