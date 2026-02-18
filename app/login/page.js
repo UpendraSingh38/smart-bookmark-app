@@ -23,13 +23,12 @@ export default function Login() {
   }, [])
 
   const handleLogin = async () => {
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-       redirectTo: `${location.origin}/auth/callback`
-
-      }
-    })
+   await supabase.auth.signInWithOAuth({
+  provider: "google",
+  options: {
+    redirectTo: "http://localhost:3000/auth/callback",
+  },
+})
   }
 
   return (
