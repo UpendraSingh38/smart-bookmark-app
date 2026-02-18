@@ -1,36 +1,151 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Smart Bookmark App
 
-## Getting Started
+## Overview
 
-First, run the development server:
+Smart Bookmark App is a simple full-stack web application where users can sign in with Google, add personal bookmarks, view them in real time, and delete them securely.
+The app is built using **Next.js (App Router)**, **Supabase (Auth, Database, Realtime)**, and **Tailwind CSS**, and is deployed on **Vercel**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## Features
+
+* Google OAuth login (no email/password)
+* Private bookmarks per user
+* Add and delete bookmarks
+* Real-time bookmark updates across tabs
+* Responsive dashboard UI
+* Live deployment on Vercel
+
+---
+
+## Problems Faced & Solutions
+
+### 1. Google login redirecting to localhost after deployment
+
+**Problem:**
+After signing in with Google on the deployed site, the app redirected to:
+
+```
+http://localhost:3000/auth/callback
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Cause:**
+Supabase authentication URL configuration and OAuth redirect settings were still pointing to localhost.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Solution:**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* Updated **Site URL** in Supabase to the deployed Vercel URL.
+* Added the production callback URL:
 
-## Learn More
+```
+https://your-vercel-domain/auth/callback
+```
 
-To learn more about Next.js, take a look at the following resources:
+* Ensured the login code dynamically sets:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```js
+redirectTo: `${window.location.origin}/auth/callback`
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+### 2. Supabase SSR cookie error (`createServerClient requires getAll and setAll`)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Problem:**
+Dashboard and auth callback routes crashed with cookie configuration errors.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Cause:**
+Incorrect usage of Supabase SSR client in Next.js App Router.
+
+**Solution:**
+
+* Implemented proper cookie handling using Next.js `cookies()` API.
+* Passed required cookie methods when creating the server client.
+
+---
+
+### 3. Module not found / incorrect Supabase client export
+
+**Problem:**
+Errors like:
+
+```
+Module not found: Can't resolve '@/lib/supabaseClient'
+```
+
+**Cause:**
+Wrong import/export structure in the Supabase client file.
+
+**Solution:**
+
+* Created a proper `createClient()` function.
+* Updated all imports to use the correct path and export.
+
+---
+
+### 4. Middleware and authentication protection issues
+
+**Problem:**
+Protected routes were not redirecting correctly.
+
+**Cause:**
+Deprecated middleware usage and incorrect session checks.
+
+**Solution:**
+
+* Updated authentication logic to modern Next.js App Router patterns.
+* Verified session inside dashboard server component and redirected if missing.
+
+---
+
+### 5. Real-time updates not reflecting across tabs
+
+**Problem:**
+Bookmarks added in one tab did not appear in another.
+
+**Cause:**
+Realtime subscription not configured correctly.
+
+**Solution:**
+
+* Enabled **Supabase Realtime** on the bookmarks table.
+* Subscribed to database changes and refreshed UI instantly.
+
+---
+
+## What I Learned
+
+* Proper OAuth redirect configuration is critical for production.
+* Supabase SSR in Next.js App Router requires careful cookie handling.
+* Real-time features are simple but require correct table permissions and subscriptions.
+* Debugging deployment issues is very different from local development.
+
+---
+
+## Live Demo
+
+Deployed on Vercel (https://smart-bookmark-app-three-lake.vercel.app/).
+
+---
+
+## Future Improvements
+
+* Bookmark search and filtering
+* Dark mode UI
+* Edit bookmark feature
+* Pagination for large bookmark lists
+* Better mobile responsiveness
+
+---
+
+## Tech Stack
+
+* **Frontend:** Next.js, Tailwind CSS
+* **Backend:** Supabase Auth, Database, Realtime
+* **Deployment:** Vercel
+
+---
+
+## Author
+
+Upendra Singh
