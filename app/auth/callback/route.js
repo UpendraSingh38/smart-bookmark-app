@@ -11,7 +11,7 @@ export async function GET(request) {
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_KEY,
     {
       cookies: {
         getAll() {
@@ -28,12 +28,7 @@ export async function GET(request) {
 
   // Exchange auth code for session
   if (code) {
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-    if (error) {
-      console.error("OAuth exchange error:", error.message)
-      return NextResponse.redirect(`${requestUrl.origin}/login`)
-    }
-    // At this point, supabase sets the session cookie correctly
+    await supabase.auth.exchangeCodeForSession(code)
   }
 
   // Redirect to dashboard after login
